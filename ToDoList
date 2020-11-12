@@ -1,4 +1,3 @@
-
 //import 'dart:js';
 //import 'package:js';
 import 'package:flutter/material.dart';
@@ -145,8 +144,8 @@ class _MyCustomFormState extends State<MyCustomForm> {
             },
           );
         },
-        tooltip: 'Show me the value!',
-        child: Icon(Icons.text_fields),
+        tooltip: 'add a ToDo',
+        child: Icon(Icons.add),
       ),
     );
   }
