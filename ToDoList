@@ -1,9 +1,36 @@
 //import 'dart:js';
 //import 'package:js';
 import 'package:flutter/material.dart';
+//import 'SecondView.dart';
+import 'package:provider/provider.dart';
 
+class Mystate extends ChangeNotifier{ 
+  var _list = [];
+
+  List<dynamic> get list => _list;
+
+  void addItem(String item){
+    _list.add(item);
+    notifyListeners();
+  }
+
+  void removeItem(int index){
+    _list.removeAt(index);
+    notifyListeners();
+  }
+  void updateItem(int index, String newContent){
+    _list[index] = newContent;
+    notifyListeners();
+
+  }
+
+}
 void main() {
-  runApp(MyApp());
+  var state = Mystate();
+  runApp(
+    ChangeNotifierProvider(create:(context) => state,
+    child:MyApp(),)
+    );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,77 +44,11 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyCustomForm(),
-      //MyHomePage(title: 'Flutter Demo Home Page'),
+     
        
     );
   }
 }
-
-/*class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-         _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-   
-    return Scaffold(
-      appBar: AppBar(
-         title: Text(widget.title),
-         actions: [
-           IconButton(icon: Icon( Icons.arrow_right), onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder:(context) => SecondView()));
-             
-           })
-         ],
-      ),
-      body: Center(
-        
-        child: Column(
-         
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-
-            _textbar(),
-                  
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            Text("rick",style: TextStyle(fontWeight: FontWeight.bold,fontSize:50 ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
-  }
-}
-Widget _textbar(){
-  return Text(
-              'You have shed the button this many times:',style: TextStyle(fontSize: 15),
-            );
-}
-*/
-
-
 
 // Define a custom Form widget.
 class MyCustomForm extends StatefulWidget {
@@ -95,13 +56,13 @@ class MyCustomForm extends StatefulWidget {
   _MyCustomFormState createState() => _MyCustomFormState();
 }
 
-// Define a corresponding State class.
-// This class holds the data related to the Form.
+
 class _MyCustomFormState extends State<MyCustomForm> {
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
   final myController = TextEditingController();
-
+  
+   
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -112,84 +73,99 @@ class _MyCustomFormState extends State<MyCustomForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       appBar: AppBar(
         title: Text('Todo list '),
          actions: [
            IconButton(icon: Icon( Icons.arrow_right), onPressed: (){
             Navigator.push(context, MaterialPageRoute(builder:(context) => SecondView()));
-             
            })
-         ],
+         ], 
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body:
+      Center(child: Consumer<Mystate>(builder: (context,state,child)=>MyList(state.list) 
+    )
+    ),
+      bottomSheet: Padding(
+        padding: const EdgeInsets.all(16.0), 
         child: TextField(
-          controller: myController,
-      
-        ),
-        
+          controller: myController, 
+        ),  
       ),
       floatingActionButton: FloatingActionButton(
-        // When the user presses the button, show an alert dialog containing
-        // the text that the user has entered into the text field.
         onPressed: () {
-          return showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                // Retrieve the text the that user has entered by using the
-                // TextEditingController.
-                content: Text(myController.text),
-              );
-            },
-          );
+         
+          Mystate state = Provider.of<Mystate>(context,listen: false);
+      state.addItem(myController.text);
+
         },
         tooltip: 'add a ToDo',
         child: Icon(Icons.add),
       ),
+      
     );
+    
   }
 }
-
+Widget _todolist(){
+  return Scaffold( body:
+      Center(child: Consumer<Mystate>(builder: (context,state,child)=>MyList(state.list)
+      
+    ))
+      );
+}
 
 class SecondView extends StatelessWidget {
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.red ),
-      body: _list(),
+      body:
+      Center(child: Consumer<Mystate>(builder: (context,state,child)=>MyList(state.list)
       
+    )
+    ),floatingActionButton: _fab(context),
     );
   }
-
-
-  Widget _list(){
-    var names = ['rick','a','s','g',];
-
-    var list = List.generate(1000, (index) => '${names[index%4]} $index'); //'${names[index%4]} $index');
-
-    return ListView.builder(itemBuilder: (context,index) => _item(list[index]),
-    itemCount: 1000,
-     
-    );
-  }
-  
-  Widget _item(text){
-      return CheckboxListTile(value: false, onChanged: _onChanged,
-      title: Text(text));
-
-
-    //return ListTile(
-    //title:Text(text));
-  
-  }
-  
-  void _onChanged (bool value){
-
-  }
-  
-  
-
-
-
-
 }
+Widget _fab(context){
+  return FloatingActionButton(
+    onPressed: (){
+      Mystate state = Provider.of<Mystate>(context,listen: false);
+      state.addItem('new element');
+      
+    },
+  child: Icon(Icons.add)
+  );
+  
+}
+
+
+
+
+class MyList extends StatelessWidget{
+  final List <dynamic> list;
+
+
+  MyList(this.list);
+
+  Widget build(BuildContext context){
+    return ListView.builder(itemBuilder: (context,index) =>_item(context,list[index],index),
+    itemCount: list.length,
+    );
+  }
+
+  Widget _item(context,item,index){
+    return ListTile(title:Text(item.toString()),
+    
+    trailing: IconButton(onPressed: (){
+      Provider.of<Mystate>(context,listen: false).removeItem(index);
+    },
+    icon: Icon(Icons.delete)
+    ),onLongPress: (){
+      
+      
+    },
+    );
+  }
+}
+
