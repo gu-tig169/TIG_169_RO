@@ -1,5 +1,4 @@
-//import 'dart:js';
-//import 'package:js';
+
 import 'package:flutter/material.dart';
 //import 'SecondView.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +22,12 @@ class Mystate extends ChangeNotifier{
     notifyListeners();
 
   }
+  bool changeBool(bool state){
+      state = true;
+    notifyListeners();
+    return state = true;
+  }
+  
 
 }
 void main() {
@@ -38,7 +43,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'TODO_LIST',
       theme: ThemeData(
         primarySwatch: Colors.blue, 
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -52,6 +57,7 @@ class MyApp extends StatelessWidget {
 
 // Define a custom Form widget.
 class MyCustomForm extends StatefulWidget {
+  var checkBoxState = false;
   @override
   _MyCustomFormState createState() => _MyCustomFormState();
 }
@@ -96,7 +102,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
         onPressed: () {
          
           Mystate state = Provider.of<Mystate>(context,listen: false);
-      state.addItem(myController.text);
+          state.addItem(myController.text);
 
         },
         tooltip: 'add a ToDo',
@@ -154,16 +160,28 @@ class MyList extends StatelessWidget{
     );
   }
 
+ 
   Widget _item(context,item,index){
-    return ListTile(title:Text(item.toString()),
-    
-    trailing: IconButton(onPressed: (){
+
+     return ListTile(title:Text(item.toString()),
+      leading:Checkbox(
+      value: false,
+      onChanged:(bool newValue){
+
+        
+        //_MyCustomFormState(){state=newValue;}
+         //Provider.of<Mystate>(context,listen: false).changeBool(state);
+        
+      },
+      ),
+      trailing: IconButton(onPressed: (){
       Provider.of<Mystate>(context,listen: false).removeItem(index);
     },
     icon: Icon(Icons.delete)
-    ),onLongPress: (){
-      
-      
+    ),
+    onLongPress: (){
+      Checkbox(value: true,onChanged: (bool newValue){});
+      // Provider.of<Mystate>(context,listen: false).removeItem(index); 
     },
     );
   }
